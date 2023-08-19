@@ -15,17 +15,23 @@ func main() {
 	}
 	tests.ReportSuccess("Insert")
 
-	if err := tests.TestInsert1400(); err != nil {
-		tests.ReportFailure("Insert 1400 rows", err)
+	if err := tests.TestInsert1300(); err != nil {
+		tests.ReportFailure("Insert 1300 rows", err)
 		return
 	}
-	tests.ReportSuccess("Insert 1400 rows")
+	tests.ReportSuccess("Insert 1300 rows")
 
-	if err := tests.TestInsert1401(); err != nil {
-		tests.ReportFailure("Insert 1401 rows", err)
+	if err := tests.TestInsert1301(); err != nil {
+		tests.ReportFailure("Insert 1301 rows", err)
 		return
 	}
-	tests.ReportSuccess("Insert 1401 rows")
+	tests.ReportSuccess("Insert 1301 rows")
+
+	if err := tests.TestInsertMaxStrings(); err != nil {
+		tests.ReportFailure("Insert Max Strings", err)
+		return
+	}
+	tests.ReportSuccess("Insert Max Strings")
 
 	if err := tests.TestSelect(); err != nil {
 		tests.ReportFailure("Select", err)

@@ -38,8 +38,8 @@ typedef enum {
 
 typedef struct {
 	uint32_t id;
-	char username[COLUMN_USERNAME_MAX];
-	char email[COLUMN_EMAIL_MAX];
+	char username[COLUMN_USERNAME_MAX+1];
+	char email[COLUMN_EMAIL_MAX+1];
 } row_t;
 
 typedef struct {
