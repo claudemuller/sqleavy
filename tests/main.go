@@ -1,5 +1,7 @@
 package main
 
+import tests "github.com/claudemuller/sqleavy/test-cases"
+
 func main() {
 	if err := tests.TestHelp(); err != nil {
 		tests.ReportFailure(err)
