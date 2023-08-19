@@ -11,9 +11,6 @@ CFLAGS += -I./libs/
 ASANFLAGS=-fsanitize=address -fno-common -fno-omit-frame-pointer
 LDFLAGS =
 LIBS =
-
-endif
-
 SRC_FILES = ./src/*.c
 BIN_DIR = ./bin
 BIN = $(BIN_DIR)/sqleavy
