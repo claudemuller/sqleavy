@@ -180,7 +180,7 @@ input_buf_t *input_buf_new(void)
 {
 	input_buf_t *input_buf = (input_buf_t *)malloc(sizeof(input_buf_t));
 	if (!input_buf) {
-		fprintf(stderr, "Error allocating memory.");
+		fprintf(stderr, "Error allocating memory for input buffer.");
 		return NULL;
 	}
 

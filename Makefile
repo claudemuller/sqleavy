@@ -33,7 +33,8 @@ run: build
 	@$(BIN) $(ARGS)
 
 test:
-	$(CC) $(CFLAGS) $(LDFLAGS) $(LIBS) -o $(TEST_DIR)/tests $(TEST_SRC) && $(TEST_DIR)/tests
+	make build
+	cd tests; go run main.go
 
 test-debug:
 	$(CC) $(CFLAGS) $(LDFLAGS) $(LIBS) -g -o $(TEST_DIR)/tests $(TEST_SRC) && lldb $(TEST_DIR)/tests $(ARGS)

@@ -4,7 +4,7 @@ func TestHelp() error {
 	expected := []string{
 		"db > .help - this menu",
 		".exit - exit this program",
-		"db > db >",
+		"db >",
 	}
 	cmds := []string{
 		".help\n",
