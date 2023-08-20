@@ -18,7 +18,7 @@ TEST_DIR = ./tests
 TEST_SRC = $(filter-out ./src/main.c, $(wildcard ./src/*.c)) $(TEST_DIR)/*.c
 
 build: bin-dir
-	$(CC) $(CFLAGS) $(LDFLAGS) $(LIBS) -o $(BIN) $(SRC_FILES)
+	$(CC) $(CFLAGS) $(LIBS) $(SRC_FILES) -o $(BIN) $(LDFLAGS)
 
 bin-dir:
 	mkdir -p $(BIN_DIR)
@@ -27,7 +27,7 @@ debug: debug-build
 	$(DBG_BIN) $(BIN) $(ARGS)
 
 debug-build: bin-dir
-	$(CC) $(CFLAGS) $(LDFLAGS) $(LIBS) -g -o $(BIN) $(SRC_FILES)
+	$(CC) $(CFLAGS) -g $(LIBS) $(SRC_FILES) -o $(BIN) $(LDFLAGS)
 
 run: build
 	@$(BIN) $(ARGS)
@@ -37,7 +37,8 @@ test:
 	cd tests; go run main.go
 
 test-debug:
-	$(CC) $(CFLAGS) $(LDFLAGS) $(LIBS) -g -o $(TEST_DIR)/tests $(TEST_SRC) && lldb $(TEST_DIR)/tests $(ARGS)
+	make build
+	cd tests; go run main.go
 
 memcheck:
 	@$(CC) -g $(SRC) $(ASANFLAGS) $(CFLAGS) $(INCS) $(LIBS) $(LFLAGS) -o memcheck.out

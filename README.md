@@ -20,6 +20,12 @@ make build
 make run
 ```
 
+# Run Tests
+
+```bash
+make test
+```
+
 # Build a Debug Binary
 
 ```bash
