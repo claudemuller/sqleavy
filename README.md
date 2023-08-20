@@ -1,4 +1,5 @@
 # SQLeavy
+[![build](https://github.com/claudemuller/sqleavy.c/actions/workflows/c.yml/badge.svg)](https://github.com/claudemuller/sqleavy.c/actions/workflows/c.yml)
 
 A toy implementation of SQLite in C.
 
