@@ -22,8 +22,9 @@ typedef enum {
 
 typedef enum {
 	PREPARE_SUCCESS,
-	PREPARE_STMT_UNRECOGNISED,
+	PREPARE_statement_UNRECOGNISED,
 	PREPARE_SYNTAX_ERROR,
+	PREPARE_STRING_TOO_LONG,
 } prepare_result_t;
 
 typedef enum {
@@ -77,10 +78,10 @@ input_buf_t *input_buf_new(void);
 int read(input_buf_t *input_buf);
 void input_buf_close(input_buf_t *input_buf);
 meta_cmd_result_t process_meta_cmd(input_buf_t *input_buf);
-prepare_result_t statement_prepare(const input_buf_t *input_buf, statement_t *stmt);
-execute_result_t statement_execute(statement_t *stmt, table_t *table);
-execute_result_t statement_insert(statement_t *stmt, table_t *table);
-execute_result_t statement_select(const statement_t *stmt, table_t *table);
+prepare_result_t statement_prepare(input_buf_t *input_buf, statement_t *statement);
+execute_result_t statement_execute(statement_t *statement, table_t *table);
+execute_result_t statement_insert(statement_t *statement, table_t *table);
+execute_result_t statement_select(const statement_t *statement, table_t *table);
 void serialise_row(row_t *src, void *dest);
 void deserialise_row(void *src, row_t *dest);
 void *row_slot(table_t *table, uint32_t row_n);
@@ -127,13 +128,18 @@ int main(void)
 				break;
 			} break;
 
-			case PREPARE_STMT_UNRECOGNISED: {
-				fprintf(stderr, "Unrecognised keyword at beginning of: '%s'\n", input_buf->buf);
+			case PREPARE_STRING_TOO_LONG: {
+				fprintf(stderr, "String too long\n");
 				continue;
 			} break;
 
 			case PREPARE_SYNTAX_ERROR: {
 				fprintf(stderr, "Syntax error in: '%s'\n", input_buf->buf);
+				continue;
+			} break;
+
+			case PREPARE_statement_UNRECOGNISED: {
+				fprintf(stderr, "Unrecognised keyword at beginning of: '%s'\n", input_buf->buf);
 				continue;
 			} break;
 		}
@@ -231,46 +237,66 @@ meta_cmd_result_t process_meta_cmd(input_buf_t *input_buf)
 	return META_CMD_UNRECOGNISED;
 }
 
-prepare_result_t statement_prepare(const input_buf_t *input_buf, statement_t *stmt)
+prepare_result_t prepare_insert(input_buf_t *input_buf, statement_t *statement)
+{
+	statement->type = STATEMENT_INSERT;
+	char *keyword = strtok(input_buf->buf, " ");
+	char *id_string = strtok(NULL, " ");
+	char *username = strtok(NULL, " ");
+	char *email = strtok(NULL, " ");
+
+	if (id_string == NULL || username == NULL || email == NULL) {
+		return PREPARE_SYNTAX_ERROR;
+	}
+
+	int id = atoi(id_string);
+	if (strlen(username) > COLUMN_USERNAME_MAX) {
+		return PREPARE_STRING_TOO_LONG;
+	}
+	if (strlen(email) > COLUMN_EMAIL_MAX) {
+		return PREPARE_STRING_TOO_LONG;
+	}
+
+	statement->row_to_insert.id = id;
+	strcpy(statement->row_to_insert.username, username);
+	strcpy(statement->row_to_insert.email, email);
+
+	return PREPARE_SUCCESS;
+}
+
+prepare_result_t statement_prepare(input_buf_t *input_buf, statement_t *statement)
 {
 	if (strncmp(input_buf->buf, "insert", 6) == 0) {
-		stmt->type = STATEMENT_INSERT;
-
-		int args = sscanf(input_buf->buf, "insert %d %s %s", &(stmt->row_to_insert.id), stmt->row_to_insert.username, stmt->row_to_insert.email);
-		if (args < 3) {
-			return PREPARE_SYNTAX_ERROR;
-		}
-
-		return PREPARE_SUCCESS;
+		return prepare_insert(input_buf, statement);
 	}
 
 	if (strcmp(input_buf->buf, "select") == 0) {
-		stmt->type = STATEMENT_SELECT;
+		statement->type = STATEMENT_SELECT;
 		return PREPARE_SUCCESS;
 	}
 
-	return PREPARE_STMT_UNRECOGNISED;
+	return PREPARE_statement_UNRECOGNISED;
 }
 
-execute_result_t statement_execute(statement_t *stmt, table_t *table)
+execute_result_t statement_execute(statement_t *statement, table_t *table)
 {
-	switch (stmt->type) {
+	switch (statement->type) {
 		case STATEMENT_INSERT: {
-			return statement_insert(stmt, table);
+			return statement_insert(statement, table);
 		} break;
 		case STATEMENT_SELECT: {
-			return statement_select(stmt, table);
+			return statement_select(statement, table);
 		} break;
 	}
 }
 
-execute_result_t statement_insert(statement_t *stmt, table_t *table)
+execute_result_t statement_insert(statement_t *statement, table_t *table)
 {
 	if (table->num_rows >= TABLE_MAX_ROWS) {
 		return EXECUTE_TABLE_FULL;
 	}
 
-	row_t *row_to_insert = &(stmt->row_to_insert);
+	row_t *row_to_insert = &(statement->row_to_insert);
 
 	serialise_row(row_to_insert, row_slot(table, table->num_rows));
 	table->num_rows++;
@@ -278,7 +304,7 @@ execute_result_t statement_insert(statement_t *stmt, table_t *table)
 	return EXECUTE_SUCCESS;
 }
 
-execute_result_t statement_select(const statement_t *stmt, table_t *table)
+execute_result_t statement_select(const statement_t *statement, table_t *table)
 {
 	row_t row;
 	for (uint32_t i = 0; i < table->num_rows; i++) {

@@ -33,6 +33,24 @@ func TestInsertMaxStrings() error {
 	return runTest(cmds, expected)
 }
 
+func TestInsertTooLongStrings() error {
+	longUser := buildStr("a", 40)
+	longEmail := buildStr("a", 260)
+
+	expected := []string{
+		"db > db > Statement executed.",
+		"db >",
+	}
+
+	cmds := []string{
+		fmt.Sprintf("insert 1 %s %s\n", longUser, longEmail),
+		"select\n",
+		".exit\n",
+	}
+
+	return runTest(cmds, expected)
+}
+
 func TestInsert1300() error {
 	expected, cmds := buildExpectedAndCmds(1300)
 	cmds = append(cmds, ".exit\n")

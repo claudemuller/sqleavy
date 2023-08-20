@@ -33,6 +33,12 @@ func main() {
 	}
 	tests.ReportSuccess("Insert Max Strings")
 
+	if err := tests.TestInsertTooLongStrings(); err != nil {
+		tests.ReportSuccess("Insert Max Strings")
+	} else {
+		tests.ReportFailure("Insert Max Strings", err)
+	}
+
 	if err := tests.TestSelect(); err != nil {
 		tests.ReportFailure("Select", err)
 		return
