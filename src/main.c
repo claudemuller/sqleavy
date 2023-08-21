@@ -246,7 +246,7 @@ meta_cmd_result_t process_meta_cmd(input_buf_t *input_buf)
 prepare_result_t prepare_insert(input_buf_t *input_buf, statement_t *statement)
 {
 	statement->type = STATEMENT_INSERT;
-	char *keyword = strtok(input_buf->buf, " ");
+	// char *keyword = strtok(input_buf->buf, " ");
 	char *id_string = strtok(NULL, " ");
 	char *username = strtok(NULL, " ");
 	char *email = strtok(NULL, " ");
@@ -328,16 +328,16 @@ execute_result_t statement_select(const statement_t *statement, table_t *table)
 
 void serialise_row(row_t *src, void *dest)
 {
-	memcpy(dest + ID_OFFSET, &(src->id), ID_SIZE);
-	memcpy(dest + USERNAME_OFFSET, &(src->username), USERNAME_SIZE);
-	memcpy(dest + EMAIL_OFFSET, &(src->email), EMAIL_SIZE);
+	memcpy((char *)dest + ID_OFFSET, &(src->id), ID_SIZE);
+	memcpy((char *)dest + USERNAME_OFFSET, &(src->username), USERNAME_SIZE);
+	memcpy((char *)dest + EMAIL_OFFSET, &(src->email), EMAIL_SIZE);
 }
 
 void deserialise_row(void *src, row_t *dest)
 {
-	memcpy(&(dest->id), src + ID_OFFSET, ID_SIZE);
-	memcpy(&(dest->username), src + USERNAME_OFFSET, USERNAME_SIZE);
-	memcpy(&(dest->email), src + EMAIL_OFFSET, EMAIL_SIZE);
+	memcpy(&(dest->id), (char *)src + ID_OFFSET, ID_SIZE);
+	memcpy(&(dest->username), (char *)src + USERNAME_OFFSET, USERNAME_SIZE);
+	memcpy(&(dest->email), (char *)src + EMAIL_OFFSET, EMAIL_SIZE);
 }
 
 void *row_slot(table_t *table, uint32_t row_n)
@@ -354,7 +354,7 @@ void *row_slot(table_t *table, uint32_t row_n)
 	uint32_t row_offset = row_n % ROWS_PER_PAGE;
 	uint32_t byte_offset = row_offset * ROW_SIZE;
 
-	return page + byte_offset;
+	return (char *)page + byte_offset;
 }
 
 void print_row(const row_t *row)
