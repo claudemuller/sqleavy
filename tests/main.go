@@ -1,6 +1,10 @@
 package main
 
-import tests "github.com/claudemuller/sqleavy/test-cases"
+import (
+	"strings"
+
+	tests "github.com/claudemuller/sqleavy/test-cases"
+)
 
 func main() {
 	if err := tests.TestHelp(); err != nil {
@@ -33,10 +37,16 @@ func main() {
 	}
 	tests.ReportSuccess("Insert Max Strings")
 
-	if err := tests.TestInsertTooLongStrings(); err != nil {
+	if err := tests.TestInsertTooLongStrings(); err != nil && strings.Contains(err.Error(), "too long") {
 		tests.ReportSuccess("Insert Max Strings")
 	} else {
 		tests.ReportFailure("Insert Max Strings", err)
+	}
+
+	if err := tests.TestInsertNegativeID(); err != nil && strings.Contains(err.Error(), "positive") {
+		tests.ReportSuccess("Insert Negative ID")
+	} else {
+		tests.ReportFailure("Insert Negative ID", err)
 	}
 
 	if err := tests.TestSelect(); err != nil {

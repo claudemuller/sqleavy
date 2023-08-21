@@ -22,9 +22,10 @@ typedef enum {
 
 typedef enum {
 	PREPARE_SUCCESS,
-	PREPARE_statement_UNRECOGNISED,
-	PREPARE_SYNTAX_ERROR,
+	PREPARE_NEGATIVE_ID,
 	PREPARE_STRING_TOO_LONG,
+	PREPARE_SYNTAX_ERROR,
+	PREPARE_STATEMENT_UNRECOGNISED,
 } prepare_result_t;
 
 typedef enum {
@@ -128,8 +129,13 @@ int main(void)
 				break;
 			} break;
 
+			case PREPARE_NEGATIVE_ID: {
+				fprintf(stderr, "ID must be positive.\n");
+				continue;
+			} break;
+
 			case PREPARE_STRING_TOO_LONG: {
-				fprintf(stderr, "String too long\n");
+				fprintf(stderr, "String too long.\n");
 				continue;
 			} break;
 
@@ -138,7 +144,7 @@ int main(void)
 				continue;
 			} break;
 
-			case PREPARE_statement_UNRECOGNISED: {
+			case PREPARE_STATEMENT_UNRECOGNISED: {
 				fprintf(stderr, "Unrecognised keyword at beginning of: '%s'\n", input_buf->buf);
 				continue;
 			} break;
@@ -250,9 +256,14 @@ prepare_result_t prepare_insert(input_buf_t *input_buf, statement_t *statement)
 	}
 
 	int id = atoi(id_string);
+	if (id < 0) {
+		return PREPARE_NEGATIVE_ID;
+	}
+
 	if (strlen(username) > COLUMN_USERNAME_MAX) {
 		return PREPARE_STRING_TOO_LONG;
 	}
+
 	if (strlen(email) > COLUMN_EMAIL_MAX) {
 		return PREPARE_STRING_TOO_LONG;
 	}
@@ -275,7 +286,7 @@ prepare_result_t statement_prepare(input_buf_t *input_buf, statement_t *statemen
 		return PREPARE_SUCCESS;
 	}
 
-	return PREPARE_statement_UNRECOGNISED;
+	return PREPARE_STATEMENT_UNRECOGNISED;
 }
 
 execute_result_t statement_execute(statement_t *statement, table_t *table)
