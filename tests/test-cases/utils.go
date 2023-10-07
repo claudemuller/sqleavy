@@ -24,7 +24,7 @@ func runTest(cmds, expected []string) error {
 	out = out[4:]
 
 	if len(expected) != len(out) {
-		fmt.Println(out)
+		fmt.Printf("output> %#v\n", out)
 		return fmt.Errorf("incorrect number of outputs: expected %d, got %d", len(expected), len(out))
 	}
 

@@ -8,7 +8,7 @@ import (
 func TestInsert() error {
 	expected, cmds := buildExpectedAndCmds(1)
 	cmds = append(cmds, ".exit\n")
-	expected = append(expected, "db >")
+	expected = append(expected, "db > ")
 
 	return runTest(cmds, expected)
 }

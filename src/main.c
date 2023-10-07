@@ -246,7 +246,7 @@ meta_cmd_result_t process_meta_cmd(input_buf_t *input_buf)
 prepare_result_t prepare_insert(input_buf_t *input_buf, statement_t *statement)
 {
 	statement->type = STATEMENT_INSERT;
-	// char *keyword = strtok(input_buf->buf, " ");
+	char *keyword = strtok(input_buf->buf, " ");
 	char *id_string = strtok(NULL, " ");
 	char *username = strtok(NULL, " ");
 	char *email = strtok(NULL, " ");
